@@ -6,99 +6,99 @@
       apt:
         name: nginx
         state: latest
-    - name: start nginx and enable nginx service
+
+    - name: Start nginx and enable nginx service
       service:
         name: nginx
         state: started
-        enabled: yes  # if you want to also enable nginx
-
-
+        enabled: yes  # If you want to also enable nginx
 
 - name: PlayBook 2
   become: yes
   hosts: Database-Servers
   tasks:
-    - name: Installing Mysql  and dependencies
+    - name: Installing MySQL and dependencies
       package:
-       name: "{{item}}"
-       state: present
-       update_cache: yes
+        name: "{{ item }}"
+        state: present
+        update_cache: yes
       loop:
-       - mysql-server
-       - mysql-client 
-       - python3-mysqldb
-       - libmysqlclient-dev
+        - mysql-server
+        - mysql-client 
+        - python3-mysqldb
+        - libmysqlclient-dev
       become: yes    
 
-    - name: start and enable mysql service
+    - name: Start and enable MySQL service
       service:
         name: mysql
         state: started
         enabled: yes    
 
-    - name: creating mysql user 
+    - name: Create MySQL user 
       mysql_user:
-        name: "{{db_user}}"
-        password: "{{db_pass}}"
+        name: "{{ db_user }}"
+        password: "{{ db_pass }}"
         priv: '*.*:ALL'
         host: '%'
         state: present   
 
-    - name: creating realcloud_db
+    - name: Create realcloud_db
       mysql_db:
-        name: "{{db_name}}"
+        name: "{{ db_name }}"
         state: present    
         
-    - name: Enable remote login to mysql
+    - name: Enable remote login to MySQL
       lineinfile:
-         path: /etc/mysql/mysql.conf.d/mysqld.cnf
-         regexp: '^bind-address'
-         line: 'bind-address = 0.0.0.0'
-         backup: yes  
+        path: /etc/mysql/mysql.conf.d/mysqld.cnf
+        regexp: '^bind-address'
+        line: 'bind-address = 0.0.0.0'
+        backup: yes  
 
 - name: PlayBook 3
   hosts: Apache-Servers
   become: true
   tasks:  
-      - name: Install Apache Webserver
-        apt: 
-          name: apache2
-          update_cache: yes 
-          state: latest
-      - name: Enable Apache on system reboot
-        service: 
-          name: apache2
-          enabled: yes
+    - name: Install Apache Webserver
+      apt: 
+        name: apache2
+        update_cache: yes 
+        state: latest
 
-      - name: Create document root for domain configured in host variable
-        file:
-          path: "/var/www/{{ http_host }}"
-          state: directory
-          owner: www-data
-          group: www-data
-          mode: '0755'
+    - name: Enable Apache on system reboot
+      service: 
+        name: apache2
+        enabled: yes
+
+    - name: Create document root for domain configured in host variable
+      file:
+        path: "/var/www/{{ http_host }}"
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
  
-      - name: Copy your index file
-        template:
-           src: "files/index-template.html"
-           dest: "/var/www/{{ http_host }}/index.html"
+    - name: Copy your index file
+      template:
+        src: "files/index-template.html"
+        dest: "/var/www/{{ http_host }}/index.html"
  
-      - name: Set up virtuahHost
-        template:
-           src: "files/apache-template.conf"
-           dest: "/etc/apache2/sites-available/{{ http_conf }}"
+    - name: Set up virtualHost
+      template:
+        src: "files/apache-template.conf"
+        dest: "/etc/apache2/sites-available/{{ http_conf }}"
  
-      - name: Enable site
-        command: a2ensite {{ http_conf }}
+    - name: Enable site
+      command: a2ensite {{ http_conf }}
  
-      - name: "UFW firewall allow HTTP on port {{ http_port }}"
-        ufw:
-          rule: allow
-          port: "{{ http_port }}"
-          proto: tcp
-        notify:
-          - Restart Apache
-          - Restart mysql
+    - name: "UFW firewall allow HTTP on port {{ http_port }}"
+      ufw:
+        rule: allow
+        port: "{{ http_port }}"
+        proto: tcp
+      notify:
+        - Restart Apache
+        - Restart mysql
 
   handlers:
     - name: Restart Apache
@@ -109,4 +109,3 @@
       service:
         name: mysql
         state: restarted
-    

@@ -1,20 +1,7 @@
 # configured aws provider with proper credentials
 provider "aws" {
-  region    = "us-east-2"
-  shared_config_files      = ["/Users/austi/.aws/conf"]
-  shared_credentials_files = ["/Users/austi/.aws/credentials"]
-  profile                  = "austin"
-}
-
-# Create a remote backend for your terraform 
-terraform {
-  backend "s3" {
-    bucket = "austinobioma-docker-tfstate"
-    region = "us-east-1"
-    profile = "austin"
-    key    = "ansible-ftstate"
-
-  }
+  region    = "us-east-1"
+  profile                  = "default"
 }
 
 
@@ -127,7 +114,7 @@ resource "aws_instance" "ec2_instance1" {
   instance_type          = "t2.small"
   subnet_id              = aws_default_subnet.default_az1.id
   vpc_security_group_ids = [aws_security_group.ec2_security_group.id]
-  key_name               = "april-batch"
+  key_name               = "virginia kp"
   user_data            = "${file("jenkins_install.sh")}"
 
   tags = {
@@ -142,7 +129,7 @@ resource "aws_instance" "ec2_instance2" {
   instance_type          = "t2.micro"
   subnet_id              = aws_default_subnet.default_az1.id
   vpc_security_group_ids = [aws_security_group.ec2_security_group.id]
-  key_name               = "april-batch"
+  key_name               = "virginia kp"
 
   tags = {
     Name = "Database-server"
@@ -154,7 +141,7 @@ resource "aws_instance" "ec2_instance3" {
   instance_type          = "t2.micro"
   subnet_id              = aws_default_subnet.default_az1.id
   vpc_security_group_ids = [aws_security_group.ec2_security_group.id]
-  key_name               = "april-batch"
+  key_name               = "virginia kp"
 
   tags = {
     Name = "Nginx-Server"
@@ -166,7 +153,7 @@ resource "aws_instance" "ec2_instance4" {
   instance_type          = "t2.micro"
   subnet_id              = aws_default_subnet.default_az1.id
   vpc_security_group_ids = [aws_security_group.ec2_security_group.id]
-  key_name               = "april-batch"
+  key_name               = "virginia kp"
 
   tags = {
     Name = "Apache-Server"
